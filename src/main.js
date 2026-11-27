@@ -120,9 +120,10 @@ $('themeToggle').addEventListener('click', event => {
   refreshPreviewForTheme();
 });
 function setFontSize(delta) {
-  const current = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
-  const next = Math.max(16, Math.min(24, current + delta));
-  document.documentElement.style.setProperty('--page-size', `${next}px`);
+  const root = document.documentElement;
+  const current = Number.parseFloat(getComputedStyle(root).getPropertyValue('--page-size')) || 16;
+  const next = Math.max(14, Math.min(24, current + delta));
+  root.style.setProperty('--page-size', `${next}px`);
   try { localStorage.setItem('gerador-fonte', String(next)); } catch {}
 }
 $('fontUp').addEventListener('click', () => setFontSize(1));
@@ -151,6 +152,6 @@ try {
     $('contrastToggle').textContent = 'Alto contraste: ativado';
   }
   const savedSize = Number(localStorage.getItem('gerador-fonte'));
-  if (savedSize >= 16 && savedSize <= 24) document.documentElement.style.setProperty('--page-size', `${savedSize}px`);
+  if (savedSize >= 14 && savedSize <= 24) document.documentElement.style.setProperty('--page-size', `${savedSize}px`);
 } catch {}
 updatePreview();

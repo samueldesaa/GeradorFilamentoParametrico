@@ -29,3 +29,6 @@ npm-debug.log*
 
 # Local Claude Code configuration (may include machine-specific settings)
 .claude/settings.local.json
+
+.vercel
+.env*
