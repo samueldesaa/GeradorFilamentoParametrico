@@ -40,6 +40,7 @@ function show2D() {
   showing3D = false;
   $('previewCanvas').hidden = false;
   $('three-root').hidden = true;
+  syncViewChrome();
   $('previewTitle').textContent = 'Caminho 2D';
   $('backBtn').hidden = true;
   $('downloadBtn').hidden = true;
@@ -55,6 +56,7 @@ function show3D() {
   showing3D = true;
   $('previewCanvas').hidden = true;
   $('three-root').hidden = false;
+  syncViewChrome();
   $('previewTitle').textContent = 'Pré-visualização 3D';
   $('backBtn').hidden = false;
   $('buildBtn').hidden = true;
@@ -78,6 +80,7 @@ function generateModel() {
     currentModelLengthM = result.metrics.lengthMm / 1000;
     currentSignature = signature(config);
     modelIsStale = false;
+    $('downloadBtn').disabled = false;
     show3D();
   } catch (error) {
     $('notice').textContent = error.message || 'Não foi possível gerar a pré-visualização.';
@@ -122,12 +125,15 @@ $('themeToggle').addEventListener('click', event => {
 function setFontSize(delta) {
   const root = document.documentElement;
   const current = Number.parseFloat(getComputedStyle(root).getPropertyValue('--page-size')) || 16;
-  const next = Math.max(14, Math.min(24, current + delta));
+  const next = Math.max(12, Math.min(24, current + delta));
   root.style.setProperty('--page-size', `${next}px`);
   try { localStorage.setItem('gerador-fonte', String(next)); } catch {}
 }
 $('fontUp').addEventListener('click', () => setFontSize(1));
 $('fontDown').addEventListener('click', () => setFontSize(-1));
+$('zoomIn').addEventListener('click', () => { preview2D.setZoom(preview2D.getZoom() * 1.2); updatePreview(); });
+$('zoomOut').addEventListener('click', () => { preview2D.setZoom(preview2D.getZoom() / 1.2); updatePreview(); });
+$('zoomReset').addEventListener('click', () => { preview2D.setZoom(1); updatePreview(); });
 $('settingsForm').addEventListener('input', event => {
   if (showing3D && event.target.matches('input')) show2D();
 });
@@ -152,6 +158,17 @@ try {
     $('contrastToggle').textContent = 'Alto contraste: ativado';
   }
   const savedSize = Number(localStorage.getItem('gerador-fonte'));
-  if (savedSize >= 14 && savedSize <= 24) document.documentElement.style.setProperty('--page-size', `${savedSize}px`);
+  if (savedSize >= 12 && savedSize <= 24) document.documentElement.style.setProperty('--page-size', `${savedSize}px`);
 } catch {}
+syncViewChrome();
 updatePreview();
+
+function syncViewChrome() {
+  if (showing3D) {
+    $('threeLegend').hidden = false;
+    $('viewZoom').hidden = true;
+  } else {
+    $('threeLegend').hidden = true;
+    $('viewZoom').hidden = false;
+  }
+}

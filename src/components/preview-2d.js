@@ -1,6 +1,7 @@
 export function create2DPreview({ canvas, wrap }) {
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Seu navegador não disponibilizou o canvas 2D.');
+  let zoomFactor = 1;
 
   function draw(points, config, metrics) {
     const rect = wrap.getBoundingClientRect();
@@ -9,7 +10,7 @@ export function create2DPreview({ canvas, wrap }) {
     canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
     context.setTransform(dpr, 0, 0, dpr, 0, 0); context.clearRect(0, 0, width, height);
     const padding = 48;
-    const scale = Math.min((width - padding * 2) / config.bedW, (height - padding * 2) / config.bedH);
+    const scale = Math.min((width - padding * 2) / config.bedW, (height - padding * 2) / config.bedH) * zoomFactor;
     context.save(); context.translate(width / 2, height / 2); context.scale(scale, -scale);
     const isLight = document.documentElement.dataset.theme === 'light';
     context.strokeStyle = isLight ? '#465746' : '#829382'; context.lineWidth = 1.5 / scale; context.setLineDash([4 / scale, 3 / scale]);
@@ -73,5 +74,10 @@ export function create2DPreview({ canvas, wrap }) {
     document.getElementById('previewErrorText').textContent = error.message || 'Confira os parâmetros e tente novamente.';
   }
 
-  return { draw, showError };
+  function setZoom(factor) {
+    zoomFactor = Math.max(0.5, Math.min(4, factor));
+  }
+  function getZoom() { return zoomFactor; }
+
+  return { draw, showError, setZoom, getZoom };
 }
